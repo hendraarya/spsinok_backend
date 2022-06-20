@@ -14,7 +14,6 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(route);
 
-
 // simple route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to bezkoder application." });
