@@ -1,4 +1,4 @@
-export const jwtVerify = (req, res, next) => {
+export const jwtVerify = (req: any, res: any, next: any) => {
 
     const token = req.headers["x-access-token"];
     if (!token) {

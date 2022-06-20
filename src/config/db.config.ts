@@ -1,4 +1,11 @@
-export const production = {
+type DatabaseConfig = {
+  username: string;
+  password: string;
+  database: string;
+  host: string;
+  dialect: string;
+};
+export const production: DatabaseConfig = {
   username: "root",
   password: "#NOh4cking",
   database: "causedb",
@@ -6,7 +13,7 @@ export const production = {
   dialect: "mysql",
 };
 
-export const development = {
+export const development: DatabaseConfig = {
   username: "root",
   password: "#NOh4cking",
   database: "spsi_nok",

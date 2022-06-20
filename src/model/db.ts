@@ -1,5 +1,5 @@
 import { createConnection } from "mysql";
-import { development } from "../config/db.config.js";
+import { development } from "../config/db.config";
 // Create a connection to the database
 const connection = createConnection({
   host: development.host,

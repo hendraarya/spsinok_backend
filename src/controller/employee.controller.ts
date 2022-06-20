@@ -1,10 +1,11 @@
+import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
 import * as employees from "../model/employee.model.js";
 
 const table = "employee_spsi";
 
-export const findAll = (req, res) => {
-    employees.getAll((err, data) => {
+export const findAll = (req: Request, res: Response) => {
+    employees.getAll((err: any, data: any) => {
         if (err){
             res.status(500).send({
               message:
@@ -20,7 +21,7 @@ export const findAll = (req, res) => {
     })
 }
 
-export const findById = (req, res) => {
+export const findById = (req: Request, res: Response) => {
 
     const validator = new Validator(req.params, {
         employee_number: 'required|numeric',
@@ -33,7 +34,7 @@ export const findById = (req, res) => {
         } else {
             const employee_no = req.params.employee_number;
             const query = `select * from ${table} where employee_no = '${employee_no}'`;
-            employees.getCustom(query, (err, data) => {
+            employees.getCustom(query, (err: any, data: any) => {
                 if (err){
                     res.status(500).send({
                       message:

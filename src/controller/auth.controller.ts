@@ -1,9 +1,10 @@
+import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
-import * as employees from "../model/employee.model.js";
+import * as employees from "../model/employee.model";
 
 const table = "employee_spsi";
 
-export const login = (req, res) => {
+export const login = (req: Request, res: Response) => {
 
     const validator = new Validator(req.body, {
         employee_number: 'required|numeric',
@@ -15,8 +16,8 @@ export const login = (req, res) => {
           res.status(422).send(validator.errors);
           return;
         } 
-            const query = `select * from ${table} where employee_no = '${req.body.employee_no}' and password = '${req.body.password}'`;
-            employees.getCustom(query, (err, data) => {
+            const query: string = `select * from ${table} where employee_no = '${req.body.employee_no}' and password = '${req.body.password}'`;
+            employees.getCustom(query, (err: any, data: any) => {
                 if (err){
                     res.status(500).send({
                       message:
