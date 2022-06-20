@@ -6,7 +6,7 @@ const table = "employee_spsi";
 export const login = (req, res) => {
 
     const validator = new Validator(req.body, {
-        username: 'required|string',
+        employee_number: 'required|numeric',
         password: 'required'
     });
 
@@ -15,12 +15,12 @@ export const login = (req, res) => {
           res.status(422).send(validator.errors);
           return;
         } 
-            const query = `select * from ${table} where username = '${req.body.username}' and password = '${req.body.password}'`;
+            const query = `select * from ${table} where employee_no = '${req.body.employee_no}' and password = '${req.body.password}'`;
             employees.getCustom(query, (err, data) => {
                 if (err){
                     res.status(500).send({
                       message:
-                        err.message || "Some error occurred while retrieving tutorials."
+                        err.message || "Some error occurred while retrieving employees."
                     });
                 } else {
                     if (data.length !== 0) {
@@ -31,7 +31,7 @@ export const login = (req, res) => {
                     } else {
                         res.send({
                             status: 'warning',
-                            message: 'Username and/or password is wrong!'
+                            message: 'Employee number and/or password is wrong!'
                         });
                     }
                 }
