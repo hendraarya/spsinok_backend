@@ -27,7 +27,7 @@ export const findById = (req: Request, res: Response) => {
         employee_number: 'required|numeric',
     });
 
-    validator.check().then((matched) => {
+    validator.check().then((matched: any) => {
         if (!matched) {
           res.status(422).send(validator.errors);
           return;

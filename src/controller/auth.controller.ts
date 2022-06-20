@@ -11,7 +11,7 @@ export const login = (req: Request, res: Response) => {
         password: 'required'
     });
 
-    validator.check().then((matched) => {
+    validator.check().then((matched: any) => {
         if (!matched) {
           res.status(422).send(validator.errors);
           return;
