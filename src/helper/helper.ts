@@ -27,10 +27,6 @@ export const checkNik = (req: Request, res: Response, nik: string) => {
         });
       } else {
         if (data.length !== 0) {
-          res.status(409).send({
-            status: "warning",
-            message: "NIK already used!",
-          });
           resolve(true);
         } else {
           resolve(false);

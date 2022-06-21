@@ -13,6 +13,7 @@ router.get("/employees", employeeMiddleware, employee.findAll);
 router.get("/employee/:nik", employeeMiddleware, employee.findById);
 router.post("/employee", employeeMiddleware, employee.add);
 router.put("/employee", employeeMiddleware, employee.update);
+router.delete("/employee/:nik", employeeMiddleware, employee.remove);
 
 route.use("/api/", router);
 route.use((req: Request, res: Response) => {
