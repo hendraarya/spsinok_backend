@@ -10,7 +10,9 @@ router.post("/login", auth.login);
 
 const employeeMiddleware = [middleware.jwtVerify];
 router.get("/employees", employeeMiddleware, employee.findAll);
-router.get("/employee/:employee_number", employeeMiddleware, employee.findById);
+router.get("/employee/:nik", employeeMiddleware, employee.findById);
+router.post("/employee", employeeMiddleware, employee.add);
+router.put("/employee", employeeMiddleware, employee.update);
 
 route.use("/api/", router);
 route.use((req: Request, res: Response) => {

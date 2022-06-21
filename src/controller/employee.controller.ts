@@ -1,9 +1,13 @@
 import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
-import * as employees from "../model/employee.model.js";
+import { queryCustom } from "../model/model";
+import * as employees from "../model/employee.model";
+import { validatorErrors, checkNik } from "../helper/helper";
+import { exit } from "process";
 
-const table = "employee_spsi";
+const table: string = "employee_spsi";
 
+//get data all employees
 export const findAll = (req: Request, res: Response) => {
   employees.getAll((err: any, data: any) => {
     if (err) {
@@ -21,19 +25,19 @@ export const findAll = (req: Request, res: Response) => {
   });
 };
 
+//get data employee by nik
 export const findById = (req: Request, res: Response) => {
   const validator = new Validator(req.params, {
-    employee_number: "required|numeric",
+    nik: "required|numeric",
   });
 
-  validator.check().then((matched: any) => {
+  validator.check().then((matched: boolean) => {
     if (!matched) {
-      res.status(422).send(validator.errors);
-      return;
+      validatorErrors(req, res, validator);
     } else {
-      const employee_no = req.params.employee_number;
-      const query = `select * from ${table} where employee_no = '${employee_no}'`;
-      employees.getCustom(query, (err: any, data: any) => {
+      const employee_nik: string = req.params.nik;
+      const query: string = `select * from ${table} where employee_nik = '${employee_nik}'`;
+      queryCustom(query, (err: any, data: any) => {
         if (err) {
           res.status(500).send({
             message:
@@ -49,11 +53,125 @@ export const findById = (req: Request, res: Response) => {
           } else {
             res.send({
               status: "warning",
-              message: `Employee number ${employee_no} is not found!`,
+              message: `Employee nik ${employee_nik} is not found!`,
             });
           }
         }
       });
+    }
+  });
+};
+
+//add new data employee
+export const add = (req: Request, res: Response) => {
+  const validator = new Validator(req.body, {
+    nik: "required|numeric",
+    name: "required|string",
+    resign_date: "required|string",
+    departement: "required|string",
+    section: "required|string",
+    gender: "required|string",
+    join_date: "required|dateFormat:YYYY-MM-DD",
+    group_code: "required|string",
+    position: "required|string",
+    shift: "required|numeric",
+  });
+
+  validator.check().then(async (matched: boolean) => {
+    if (!matched) {
+      validatorErrors(req, res, validator);
+    } else {
+      let {
+        nik,
+        name,
+        resign_date,
+        departement,
+        section,
+        gender,
+        join_date,
+        group_code,
+        position,
+        shift,
+      } = req.body;
+
+      const nikIsExist: any = await checkNik(req, res, nik);
+
+      if (!nikIsExist) {
+        const queryInsert: string = `insert into ${table} (employee_nik, employee_name, resign_date, departement, section, gender, join_date, group_code, employee_position, shift)
+        values ('${nik}', '${name}', '${resign_date}', '${departement}', '${section}', '${gender}', '${join_date}', '${group_code}', '${position}', '${shift}')`;
+        queryCustom(queryInsert, (err: any, data: any) => {
+          if (err) {
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while add employees.",
+            });
+          } else {
+            res.send({
+              status: "success",
+              message: "Success add data employee!",
+            });
+          }
+        });
+      }
+    }
+  });
+};
+
+//update data employee
+export const update = (req: Request, res: Response) => {
+  const validator = new Validator(req.body, {
+    old_nik: "required|numeric",
+    new_nik: "required|numeric",
+    name: "required|string",
+    resign_date: "required|string",
+    departement: "required|string",
+    section: "required|string",
+    gender: "required|string",
+    join_date: "required|dateFormat:YYYY-MM-DD",
+    group_code: "required|string",
+    position: "required|string",
+    shift: "required|numeric",
+  });
+
+  validator.check().then(async (matched: boolean) => {
+    if (!matched) {
+      validatorErrors(req, res, validator);
+    } else {
+      let {
+        old_nik,
+        new_nik,
+        name,
+        resign_date,
+        departement,
+        section,
+        gender,
+        join_date,
+        group_code,
+        position,
+        shift,
+      } = req.body;
+
+      const nikIsExist: any =
+        old_nik === new_nik ? false : await checkNik(req, res, new_nik);
+
+      if (!nikIsExist) {
+        const queryUpdate: string = `update ${table} set employee_nik = '${new_nik}', employee_name = '${name}', resign_date = '${resign_date}', 
+        departement = '${departement}', section = '${section}', gender = '${gender}', join_date = '${join_date}', group_code = '${group_code}', 
+        employee_position = '${position}', shift = '${shift}' where employee_nik = '${old_nik}'`;
+        queryCustom(queryUpdate, (err: any, data: any) => {
+          if (err) {
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while add employees.",
+            });
+          } else {
+            res.send({
+              status: "success",
+              message: "Success update data employee!",
+            });
+          }
+        });
+      }
     }
   });
 };

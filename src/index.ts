@@ -1,8 +1,8 @@
-import express, { json, urlencoded } from "express";
+import express, { Express, json, urlencoded } from "express";
 import cors from "cors";
 import { route } from "./route/route.js";
 
-const app = express();
+const app: Express = express();
 const corsOptions = {
   origin: "http://localhost:8081",
 };
@@ -16,10 +16,9 @@ app.use(route);
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
+  res.json({ message: "Hello world." });
 });
 
-// require("./app/routes/tutorial.routes.js")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

@@ -5,6 +5,7 @@ type DatabaseConfig = {
   host: string;
   dialect: string;
 };
+
 export const production: DatabaseConfig = {
   username: "root",
   password: "#NOh4cking",

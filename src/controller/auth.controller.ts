@@ -16,7 +16,7 @@ export const login = (req: Request, res: Response) => {
       return;
     }
     const query: string = `select * from ${table} where username = '${req.body.username}' and password = '${req.body.password}'`;
-    employees.getCustom(query, (err: any, data: any) => {
+    employees.queryCustom(query, (err: any, data: any) => {
       if (err) {
         res.status(500).send({
           message:
