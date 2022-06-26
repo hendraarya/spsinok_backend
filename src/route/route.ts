@@ -8,7 +8,7 @@ const router = Router();
 
 router.post("/login", auth.login);
 
-const employeeMiddleware = [middleware.jwtVerify];
+const employeeMiddleware = [middleware.tokenVerify];
 router.get("/employees", employeeMiddleware, employee.findAll);
 router.get("/employee/:nik", employeeMiddleware, employee.findById);
 router.post("/employee", employeeMiddleware, employee.add);

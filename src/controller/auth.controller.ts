@@ -1,8 +1,11 @@
 import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
-import * as employees from "../model/employee.model";
+import moment from "moment-timezone";
+import { QueryBuilder } from "../model/model";
+import { addSession } from "../helper/helper";
 
 const table = "user_spsi";
+const bcrypt = require("bcrypt");
 
 export const login = (req: Request, res: Response) => {
   const validator = new Validator(req.body, {
@@ -15,26 +18,45 @@ export const login = (req: Request, res: Response) => {
       res.status(422).send(validator.errors);
       return;
     }
-    const query: string = `select * from ${table} where username = '${req.body.username}' and password = '${req.body.password}'`;
-    employees.queryCustom(query, (err: any, data: any) => {
-      if (err) {
-        res.status(500).send({
+
+    QueryBuilder(table)
+      .where({ username: req.body.username, password: req.body.password })
+      .first()
+      .select("*")
+      .then(async (result: any) => {
+        if (result) {
+          const stringToHash = `${result.username}.${result.level}`;
+          let token: string = "";
+
+          await bcrypt.hash(stringToHash, 10).then((hash: any) => {
+            token = hash;
+          });
+
+          const dataToInsert = {
+            alias: result.username,
+            level: "user",
+            token: token,
+            expired: moment(new Date())
+              .add(30, "m")
+              .format("YYYY-MM-DD HH:mm:ss"),
+            address: "-",
+            create: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+            update: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+          };
+
+          addSession(req, res, dataToInsert);
+          return res.send({
+            status: "success",
+            message: "Success login!",
+            token: token,
+          });
+        }
+      })
+      .catch((err: any) => {
+        return res.status(500).send({
           message:
             err.message || "Some error occurred while retrieving employees.",
         });
-      } else {
-        if (data.length !== 0) {
-          res.send({
-            status: "success",
-            message: "Success login!",
-          });
-        } else {
-          res.send({
-            status: "warning",
-            message: "Username and/or password is wrong!",
-          });
-        }
-      }
-    });
+      });
   });
 };

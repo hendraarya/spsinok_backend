@@ -3,6 +3,7 @@ type DatabaseConfig = {
   password: string;
   database: string;
   host: string;
+  port: number;
   dialect: string;
 };
 
@@ -11,6 +12,7 @@ export const production: DatabaseConfig = {
   password: "#NOh4cking",
   database: "causedb",
   host: "localhost",
+  port: 3306,
   dialect: "mysql",
 };
 
@@ -19,5 +21,6 @@ export const development: DatabaseConfig = {
   password: "#NOh4cking",
   database: "spsi_nok",
   host: "localhost",
+  port: 3306,
   dialect: "mysql",
 };

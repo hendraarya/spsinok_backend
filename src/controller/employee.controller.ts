@@ -1,62 +1,77 @@
 import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
-import { queryCustom } from "../model/model";
-import * as employees from "../model/employee.model";
 import { validatorErrors, checkNik } from "../helper/helper";
+import { QueryBuilder } from "../model/model";
+import moment from "moment-timezone";
 
 const table: string = "employee_spsi";
+const column: Array<string> = [
+  "employee_nik",
+  "employee_name",
+  "resign_date",
+  "departement",
+  "section",
+  "gender",
+  "join_date",
+  "group_code",
+  "employee_position",
+  "shift",
+];
 
 //get data all employees
-export const findAll = (req: Request, res: Response) => {
-  employees.getAll((err: any, data: any) => {
-    if (err) {
-      res.status(500).send({
+export const findAll = async (req: Request, res: Response) => {
+  await QueryBuilder.select(column)
+    .table(table)
+    .then((result: any) => {
+      return res.send({
+        status: "success",
+        message: "Success get data employees!",
+        data: result,
+      });
+    })
+    .catch((err: any) => {
+      return res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving tutorials.",
       });
-    } else {
-      res.send({
-        status: "success",
-        message: "Success get data employees!",
-        data: data,
-      });
-    }
-  });
+    });
 };
 
 //get data employee by nik
-export const findById = (req: Request, res: Response) => {
+export const findById = async (req: Request, res: Response) => {
   const validator = new Validator(req.params, {
     nik: "required|numeric",
   });
 
-  validator.check().then((matched: boolean) => {
+  validator.check().then(async (matched: boolean) => {
     if (!matched) {
       validatorErrors(req, res, validator);
     } else {
-      const employee_nik: string = req.params.nik;
-      const query: string = `select * from ${table} where employee_nik = '${employee_nik}'`;
-      queryCustom(query, (err: any, data: any) => {
-        if (err) {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving employees.",
-          });
-        } else {
-          if (data.length !== 0) {
+      const nik: string = req.params.nik;
+      await QueryBuilder(table)
+        .where({ employee_nik: nik })
+        .first()
+        .select(column)
+        .then((result: any) => {
+          if (result) {
             res.send({
               status: "success",
               message: "Success get data employee!",
-              data: data[0],
+              data: result,
             });
           } else {
             res.send({
               status: "warning",
-              message: `Employee nik ${employee_nik} is not found!`,
+              message: `Employee with nik ${nik} is not found!`,
             });
           }
-        }
-      });
+        })
+        .catch((err: any) => {
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while retrieving employees.",
+          });
+        });
     }
   });
 };
@@ -96,26 +111,39 @@ export const add = (req: Request, res: Response) => {
       const nikIsExist: any = await checkNik(req, res, nik);
 
       if (nikIsExist) {
-        res.status(409).send({
+        return res.status(409).send({
           status: "warning",
           message: "NIK already used!",
         });
       } else {
-        const queryInsert: string = `insert into ${table} (employee_nik, employee_name, resign_date, departement, section, gender, join_date, group_code, employee_position, shift)
-        values ('${nik}', '${name}', '${resign_date}', '${departement}', '${section}', '${gender}', '${join_date}', '${group_code}', '${position}', '${shift}')`;
-        queryCustom(queryInsert, (err: any, data: any) => {
-          if (err) {
-            res.status(500).send({
-              message:
-                err.message || "Some error occurred while add employees.",
-            });
-          } else {
+        const coloumnToInsert = {
+          employee_nik: nik,
+          employee_name: name,
+          resign_date: resign_date,
+          departement: departement,
+          section: section,
+          gender: gender,
+          join_date: join_date,
+          group_code: group_code,
+          employee_position: position,
+          shift: shift,
+          created_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+          updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        };
+        QueryBuilder(table)
+          .insert(coloumnToInsert)
+          .then((result: any) => {
             res.send({
               status: "success",
               message: "Success add data employee!",
             });
-          }
-        });
+          })
+          .catch((err: any) => {
+            return res.status(500).send({
+              message:
+                err.message || "Some error occurred while add employees.",
+            });
+          });
       }
     }
   });
@@ -160,32 +188,44 @@ export const update = (req: Request, res: Response) => {
         old_nik === new_nik ? false : await checkNik(req, res, new_nik);
 
       if (!oldNikIsAvailable) {
-        res.status(404).send({
+        return res.status(404).send({
           status: "warning",
           message: `Employee with NIK ${old_nik} not found!`,
         });
       } else if (newNikAlreadyUsed) {
-        res.status(409).send({
+        return res.status(409).send({
           status: "warning",
           message: "NIK already used!",
         });
       } else {
-        const queryUpdate: string = `update ${table} set employee_nik = '${new_nik}', employee_name = '${name}', resign_date = '${resign_date}', 
-        departement = '${departement}', section = '${section}', gender = '${gender}', join_date = '${join_date}', group_code = '${group_code}', 
-        employee_position = '${position}', shift = '${shift}' where employee_nik = '${old_nik}'`;
-        queryCustom(queryUpdate, (err: any, data: any) => {
-          if (err) {
-            res.status(500).send({
-              message:
-                err.message || "Some error occurred while add employees.",
-            });
-          } else {
-            res.send({
+        const coloumnToUpdate = {
+          employee_nik: new_nik,
+          employee_name: name,
+          resign_date: resign_date,
+          departement: departement,
+          section: section,
+          gender: gender,
+          join_date: join_date,
+          group_code: group_code,
+          employee_position: position,
+          shift: shift,
+          updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        };
+        QueryBuilder(table)
+          .where({ employee_nik: old_nik })
+          .update(coloumnToUpdate)
+          .then((result: any) => {
+            return res.send({
               status: "success",
               message: "Success update data employee!",
             });
-          }
-        });
+          })
+          .catch((err: any) => {
+            return res.status(500).send({
+              message:
+                err.message || "Some error occurred while add employees.",
+            });
+          });
       }
     }
   });
@@ -201,30 +241,31 @@ export const remove = (req: Request, res: Response) => {
     if (!matched) {
       validatorErrors(req, res, validator);
     } else {
-      const employee_nik: string = req.params.nik;
-      const nikIsAvailable: any = await checkNik(req, res, employee_nik);
+      const nik: string = req.params.nik;
+      const nikIsAvailable: any = await checkNik(req, res, nik);
 
       if (!nikIsAvailable) {
-        res.status(404).send({
+        return res.status(404).send({
           status: "warning",
-          message: `Employee with NIK ${employee_nik} not found!`,
+          message: `Employee with NIK ${nik} not found!`,
         });
       } else {
-        const queryDelete: string = `delete from ${table} where employee_nik = '${employee_nik}'`;
-        queryCustom(queryDelete, (err: any, data: any) => {
-          if (err) {
+        QueryBuilder(table)
+          .where({ employee_nik: nik })
+          .del()
+          .then((result: any) => {
+            res.send({
+              status: "success",
+              message: "Success delete data employee!",
+              deleted: nik,
+            });
+          })
+          .catch((err: any) => {
             res.status(500).send({
               message:
                 err.message || "Some error occurred while add employees.",
             });
-          } else {
-            res.send({
-              status: "success",
-              message: "Success delete data employee!",
-              deleted: employee_nik,
-            });
-          }
-        });
+          });
       }
     }
   });

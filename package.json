@@ -13,9 +13,13 @@
   "author": "pasca-sahida",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "express-validator": "^6.14.1",
+    "knex": "^2.1.0",
+    "moment": "^2.29.3",
+    "moment-timezone": "^0.5.34",
     "mysql": "^2.18.1",
     "node-input-validator": "^4.5.0",
     "prettier": "^2.7.1"

@@ -1,4 +1,6 @@
 import sql from "./db";
+import knex, { Knex } from "knex";
+import { development } from "../config/db.config";
 
 export const queryCustom = (customQuery: string, result: any) => {
   sql.query(customQuery, (err, res) => {
@@ -11,3 +13,14 @@ export const queryCustom = (customQuery: string, result: any) => {
     result(null, res);
   });
 };
+
+export const QueryBuilder: Knex = knex({
+  client: "mysql",
+  connection: {
+    host: development.host,
+    port: development.port,
+    user: development.username,
+    password: development.password,
+    database: development.database,
+  },
+});
