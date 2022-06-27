@@ -1,6 +1,6 @@
 import express, { Express, json, urlencoded } from "express";
 import cors from "cors";
-import fileUpload from 'express-fileupload';
+import fileUpload from "express-fileupload";
 import { route } from "./route/route.js";
 
 const app: Express = express();
@@ -8,8 +8,8 @@ const corsOptions = {
   origin: "http://localhost:8081",
 };
 
-app.use(express.static('public'))
-app.use(cors(corsOptions));// parse requests of content-type - application/json
+app.use(express.static("public"));
+app.use(cors(corsOptions)); // parse requests of content-type - application/json
 app.use(json());
 app.use(urlencoded({ extended: false })); // parse requests of content-type - application/x-www-form-urlencoded
 app.use(fileUpload()); //use library to upload file

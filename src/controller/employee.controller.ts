@@ -2,13 +2,14 @@ import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
 import { validatorErrors, checkNik } from "../helper/helper";
 import { QueryBuilder } from "../model/model";
-import appRoot  from 'app-root-path';
+import appRoot from "app-root-path";
 import moment from "moment";
 
 const table: string = "employee_spsi";
 const column: Array<string> = [
   "employee_nik",
   "employee_name",
+  "profile_picture",
   "resign_date",
   "departement",
   "section",
@@ -79,7 +80,6 @@ export const findById = async (req: Request, res: Response) => {
 
 //add new data employee
 export const add = (req: Request, res: Response) => {
-
   //merge req file upload with req body to validate
   for (const key in req.files) {
     req.body[key] = req.files[key];
@@ -88,7 +88,7 @@ export const add = (req: Request, res: Response) => {
   const validator = new Validator(req.body, {
     nik: "required|numeric",
     name: "required|string",
-    picture: 'required|mime:jpg,png|size:2mb',
+    picture: "required|mime:jpg,png|size:2mb",
     resign_date: "required|string",
     departement: "required|string",
     section: "required|string",
@@ -124,20 +124,22 @@ export const add = (req: Request, res: Response) => {
           message: "NIK already used!",
         });
       } else {
-        const fileName: string = `profile_${nik}_${moment().unix()}.${req.body.picture.name.split('.')[1]}`;
+        const fileName: string = `profile_${nik}_${moment().unix()}.${
+          req.body.picture.name.split(".")[1]
+        }`;
         const uploadPath: string = `${appRoot.path}/public/images/profiles/`;
         const uploadPicture: any = req.body.picture;
         const upload: any = await new Promise((resolve) => {
-          uploadPicture.mv(`${uploadPath}${fileName}`, (err: any) =>  {
+          uploadPicture.mv(`${uploadPath}${fileName}`, (err: any) => {
             if (err) {
               return res.status(500).send({
                 message:
                   err.message || "Some error occurred while upload file.",
               });
             }
-            resolve(true)
-          })
-        }) 
+            resolve(true);
+          });
+        });
 
         if (upload) {
           const coloumnToInsert = {

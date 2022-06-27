@@ -17,8 +17,8 @@ router.delete("/employee/:nik", employeeMiddleware, employee.remove);
 
 route.use("/api/", router);
 router.get("/images/profiles", (req, res) => {
-  res.sendFile('assets/profiles/profile_4455_1656338386.jpg');
-})
+  res.sendFile("assets/profiles/profile_4455_1656338386.jpg");
+});
 route.use((req: Request, res: Response) => {
   res.status(404).send({
     status: "error",
