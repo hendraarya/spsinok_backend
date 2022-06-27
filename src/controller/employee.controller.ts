@@ -2,7 +2,8 @@ import { Response, Request } from "express";
 import { Validator } from "node-input-validator";
 import { validatorErrors, checkNik } from "../helper/helper";
 import { QueryBuilder } from "../model/model";
-import moment from "moment-timezone";
+import appRoot  from 'app-root-path';
+import moment from "moment";
 
 const table: string = "employee_spsi";
 const column: Array<string> = [
@@ -67,7 +68,7 @@ export const findById = async (req: Request, res: Response) => {
           }
         })
         .catch((err: any) => {
-          res.status(500).send({
+          return res.status(500).send({
             message:
               err.message || "Some error occurred while retrieving employees.",
           });
@@ -78,9 +79,16 @@ export const findById = async (req: Request, res: Response) => {
 
 //add new data employee
 export const add = (req: Request, res: Response) => {
+
+  //merge req file upload with req body to validate
+  for (const key in req.files) {
+    req.body[key] = req.files[key];
+  }
+
   const validator = new Validator(req.body, {
     nik: "required|numeric",
     name: "required|string",
+    picture: 'required|mime:jpg,png|size:2mb',
     resign_date: "required|string",
     departement: "required|string",
     section: "required|string",
@@ -116,34 +124,52 @@ export const add = (req: Request, res: Response) => {
           message: "NIK already used!",
         });
       } else {
-        const coloumnToInsert = {
-          employee_nik: nik,
-          employee_name: name,
-          resign_date: resign_date,
-          departement: departement,
-          section: section,
-          gender: gender,
-          join_date: join_date,
-          group_code: group_code,
-          employee_position: position,
-          shift: shift,
-          created_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
-          updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
-        };
-        QueryBuilder(table)
-          .insert(coloumnToInsert)
-          .then((result: any) => {
-            res.send({
-              status: "success",
-              message: "Success add data employee!",
-            });
+        const fileName: string = `profile_${nik}_${moment().unix()}.${req.body.picture.name.split('.')[1]}`;
+        const uploadPath: string = `${appRoot.path}/public/images/profiles/`;
+        const uploadPicture: any = req.body.picture;
+        const upload: any = await new Promise((resolve) => {
+          uploadPicture.mv(`${uploadPath}${fileName}`, (err: any) =>  {
+            if (err) {
+              return res.status(500).send({
+                message:
+                  err.message || "Some error occurred while upload file.",
+              });
+            }
+            resolve(true)
           })
-          .catch((err: any) => {
-            return res.status(500).send({
-              message:
-                err.message || "Some error occurred while add employees.",
+        }) 
+
+        if (upload) {
+          const coloumnToInsert = {
+            employee_nik: nik,
+            employee_name: name,
+            profile_picture: `http://${req.headers.host}/images/profiles/${fileName}`,
+            resign_date: resign_date,
+            departement: departement,
+            section: section,
+            gender: gender,
+            join_date: join_date,
+            group_code: group_code,
+            employee_position: position,
+            shift: shift,
+            created_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+            updated_at: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+          };
+          QueryBuilder(table)
+            .insert(coloumnToInsert)
+            .then((result: any) => {
+              return res.send({
+                status: "success",
+                message: "Success add data employee!",
+              });
+            })
+            .catch((err: any) => {
+              return res.status(500).send({
+                message:
+                  err.message || "Some error occurred while add employees.",
+              });
             });
-          });
+        }
       }
     }
   });
