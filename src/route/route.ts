@@ -7,9 +7,9 @@ export const route: Express = express();
 const router = Router();
 
 router.post("/login", auth.login);
-
+router.get("/employees", employee.findAll);
 const employeeMiddleware = [middleware.tokenVerify];
-router.get("/employees", employeeMiddleware, employee.findAll);
+// router.get("/employees", employeeMiddleware, employee.findAll);
 router.get("/employee/:nik", employeeMiddleware, employee.findById);
 router.post("/employee", employeeMiddleware, employee.add);
 router.put("/employee", employeeMiddleware, employee.update);
