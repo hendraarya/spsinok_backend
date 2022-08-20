@@ -19,7 +19,7 @@ export const production: DatabaseConfig = {
 export const development: DatabaseConfig = {
   username: "root",
   password: "",
-  database: "spsi_nin",
+  database: "spsi_nok",
   host: "localhost",
   port: 3306,
   dialect: "mysql",
