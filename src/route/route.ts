@@ -3,6 +3,7 @@ import * as auth from "../controller/auth.controller.js";
 import * as employee from "../controller/employee.controller.js";
 import * as document from "../controller/document.controller.js";
 import * as middleware from "../middleware/middleware.js";
+import * as readplc from "../controller/readplc.controller.js";
 
 export const route: Express = express();
 const router = Router();
@@ -27,3 +28,8 @@ route.use((req: Request, res: Response) => {
     message: "Route not found!",
   });
 });
+
+//for trial Project MMS
+router.post("/postdataplc", readplc.adddataplc);
+router.put("/mmstrial", readplc.updatedatapackinga);
+
