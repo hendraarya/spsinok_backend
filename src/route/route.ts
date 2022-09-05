@@ -2,6 +2,7 @@ import express, { Express, Router, Response, Request } from "express";
 import * as auth from "../controller/auth.controller.js";
 import * as employee from "../controller/employee.controller.js";
 import * as document from "../controller/document.controller.js";
+import * as management_spsi from "../controller/pengurus.controller.js"
 import * as middleware from "../middleware/middleware.js";
 import * as readplc from "../controller/readplc.controller.js";
 
@@ -11,6 +12,8 @@ const router = Router();
 router.post("/login", auth.login);
 router.get("/employees", employee.findAll);
 router.get("/document", document.findDocument);
+router.get("/pengurusspsi", management_spsi.pengurusnow);
+
 const employeeMiddleware = [middleware.tokenVerify];
 // router.get("/employees", employeeMiddleware, employee.findAll);
 router.get("/employee/:nik", employeeMiddleware, employee.findById);
@@ -31,5 +34,9 @@ route.use((req: Request, res: Response) => {
 
 //for trial Project MMS
 router.post("/postdataplc", readplc.adddataplc);
+<<<<<<< HEAD
 router.put("/mmstrial", readplc.updatedatapackinga);
 
+=======
+router.put("/mmstrial", readplc.updatedatapackinga);
+>>>>>>> 8fc9d3d2233225f45c162756747fbce7847679b7
