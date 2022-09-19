@@ -34,9 +34,8 @@ route.use((req: Request, res: Response) => {
 
 //for trial Project MMS
 router.post("/postdataplc", readplc.adddataplc);
-<<<<<<< HEAD
+router.post("/adddatamms", readplc.postdatamms);
 router.put("/mmstrial", readplc.updatedatapackinga);
 
-=======
-router.put("/mmstrial", readplc.updatedatapackinga);
->>>>>>> 8fc9d3d2233225f45c162756747fbce7847679b7
+
+

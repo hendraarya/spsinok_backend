@@ -3,7 +3,8 @@ import moment from 'moment';
 import { QueryBuilder } from "../model/model";
 
 const table: string = "trialapi";
-const table2: string = "mms_trial"
+const table2: string = "mms_trial";
+const table3: string = "t_hr";
 
 export const adddataplc = (req: Request, res: Response) => {
 
@@ -68,4 +69,40 @@ export const updatedatapackinga = (req: Request, res: Response) => {
                     err.message || "Some error occurred while add employees.",
             });
         });
+}
+
+export const postdatamms = (req: Request, res: Response) => {
+
+    let {
+        mesin_id,
+        status,
+        power,
+        date,
+        time,
+
+    } = req.body;
+
+    const columnToInsertMMS = {
+        mesin_id,
+        status,
+        power,
+        date,
+        time,
+    };
+
+    QueryBuilder(table3)
+        .insert(columnToInsertMMS)
+        .then((result: any) => {
+            return res.send({
+                status: "success",
+                message: "Success add data MMS!",
+            });
+        })
+        .catch((err: any) => {
+            return res.status(500).send({
+                message:
+                    err.message || "Some error occurred while add employees.",
+            });
+        });
+
 }
